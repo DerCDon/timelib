@@ -11,84 +11,108 @@
  *
  *
  **/
-int day_of_the_year(int day, int month, int year)
-{
-    int i;
-    int days_per_month[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
-    int days = 0;
+ struct date
+ {
+     int year;
+     int month;
+     int day;
 
-    printf(" *** Tag des Jahres ***\n");
+ };
 
-    while(1)
+ int is_leapyear(struct date date)
+ {
+    if (date.year <1582)
     {
-        printf("Tag:");
-        scanf("%i",&day);
-        printf("Monat:");
-        scanf("%i",&month);
-        printf("Jahr:");
-        scanf("%i",&year);
-        if (month == 2)
-        {
-            if (schaltjahr(year) == 1)
-            {
-                if(day > 29)
-                {
-                    printf("Ungueltiger Tag\n");
-                    continue;
-                }
-            }
-
-        }
-        if (day > days_per_month[month +1])
-        {
-            printf("Ungueltiger Tag\n");
-                            continue;
-        }
-        if (month > 12)
-        {
-            printf("Ungueltiger Monat\n");
-                            continue;
-        }
-        break;
+        return -1;
     }
-    if (month>1)
+    if (date.year%4 == 0)
     {
-        for(i=0; i< month-1; i++)
-        {
-            if(schaltjahr(year) == 1)
-            {
-                days_per_month[1] = 29;
-            }
-            days += days_per_month[i];
-        }
-        days += day;
-
-    }
-    else
-    {
-        days = day;
-    }
-    printf("Der %i.%i.%i ist der %i. des Jahres",day,month,year,days);
-
-
-    return 0;
-}
-
-int schaltjahr(int year)
-{
-    if (year%4 == 0)
-    {
-        if (year%100 != 0 || year%400 == 0)
+        if (date.year%100 != 0 || date.year%400 == 0)
         {
             return 1;
         }
     }
     return 0;
+ }
 
-}
+ int get_days_for_month(struct date date, int month)
+ {
+     int days_per_month[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+     int days_per_month_in_leapyear[12] = {31,29,31,30,31,30,31,31,30,31,30,31};
+     if (is_leapyear(date))
+     {
+         return days_per_month_in_leapyear[month-1];
+     }
+     else
+     {
+         return days_per_month[month-1];
+     }
+
+ }
+ int exists_date(struct date date)
+ {
+     if (date.day > get_days_for_month(date,date.month))
+     {
+         return 0;
+     }
+
+     if ((date.month<=0) || (date.month >12))
+     {
+         return 0;
+     }
+     if ((date.year <1582) || (date.year > 2400))
+     {
+         return 0;
+     }
+
+    return 1;
+
+ }
+
+ int day_of_the_year(struct date date)
+ {
+     int total_days = 0;
+     int i;
+     for (i=1;i<date.month;i++)
+     {
+         total_days += get_days_for_month(date,i);
+
+     }
+     total_days += date.day;
+     return total_days;
+ }
+
+ struct date input_date()
+ {
+     struct date date;
+     while(1)
+     {
+         printf("Geben Sie ein Jahr ein: \n");
+         scanf("%d", &date.year);
+
+         printf("Geben Sie einen Monat ein: \n");
+         scanf("%d", &date.month);
+         printf("Geben Sie einen Tag ein: \n");
+         scanf("%d", &date.day);
+
+         if(exists_date(date) == 1)
+         {
+             break;
+         }
+         else
+         {
+             printf("Falsche Eingabe \n");
+         }
+     }
+     return date;
+
+ }
 
 int main()
 {
-    printf("Tag des Jahres: %i\n", day_of_the_year(31, 12, 2018));
+    struct date date1;
+    date1 = input_date();
+    printf("Day of the Year: %d", day_of_the_year(date1));
     return 0;
 }
+
